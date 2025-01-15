@@ -1,5 +1,5 @@
 <template>
-  <div id="map" style="height: 90vh" />
+  <div id="map" style="height: 85vh" />
   <Teleport v-if="popupContainer" :to="popupContainer">
     <PopupForm
       :marker-position="markerPosition"
@@ -63,12 +63,6 @@ onMounted(async () => {
     markerZoomAnimation: true,
   }).fitBounds(bounds);
 
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution:
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map.value);
-
   // Add zoom level display to map
   L.control
     .scale({
@@ -78,6 +72,13 @@ onMounted(async () => {
       // showZoomLevel: true,
     })
     .addTo(map.value);
+  map.value.zoomControl.setPosition("bottomright");
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution:
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map.value);
 
   const markers = L.markerClusterGroup();
 
@@ -85,7 +86,7 @@ onMounted(async () => {
     const each_marker = new L.marker([element.latitude, element.longitude], {
       icon: myIcon,
     }).bindPopup(
-      `<strong> Hello Bangladesh! </strong> <br> I am a popup number ${index}`
+      `<strong> Concise Data Regarding this Point </strong> <br> More detailed data and input forms can go in modals or side-panels. Point ID: ${index}`
     );
     markers.addLayer(each_marker);
   });
@@ -94,4 +95,8 @@ onMounted(async () => {
 });
 </script>
 
-<style></style>
+<style>
+.leaflet-top {
+  z-index: 1000 !important;
+}
+</style>
