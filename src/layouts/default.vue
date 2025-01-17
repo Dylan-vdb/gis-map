@@ -5,8 +5,8 @@
 
       <v-app-bar-title>Example Map Application</v-app-bar-title>
     </v-app-bar>
-    <v-navigation-drawer v-model="drawer">
-      <!--  -->
+    <v-navigation-drawer v-model="drawer" :style="{ padding: '12px' }">
+      <FileDropZone />
     </v-navigation-drawer>
     <v-main>
       <RouterView />
@@ -16,6 +16,7 @@
 
 <script setup>
 import { ref } from "vue";
+import FileDropZone from "@/components/FileDropZone.vue";
 
 const drawer = ref(null);
 </script>

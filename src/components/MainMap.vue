@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -19,6 +19,37 @@ import "leaflet.markercluster";
 import icon from "@/helpers/icon.png";
 import markerShadow from "@/helpers/marker-shadow.png";
 import { generateSACoordinates } from "@/helpers/generateSACoordinatess";
+
+import { useAppStore } from "@/stores/app";
+const store = useAppStore();
+// const userMarkers = ref(store.markers);
+let myIcon, markers;
+const coordinates = ref(generateSACoordinates(300));
+watch(
+  () => store.markers,
+  (newMarkers) => {
+    console.log("Items array changed:", newMarkers); // Perform any side effects here
+    if (!newMarkers.length) return;
+
+    coordinates.value = [];
+    markers.clearLayers();
+    markers = L.markerClusterGroup();
+
+    newMarkers.forEach((location) => {
+      const each_marker = new L.marker(
+        [location.Latitude, location.Longitude],
+        {
+          icon: myIcon,
+        }
+      ).bindPopup(
+        `<strong> ${location.Title} </strong> <br> ${location.Description}`
+      );
+      markers.addLayer(each_marker);
+    });
+
+    map.value.addLayer(markers);
+  }
+);
 const map = ref(null);
 
 const popupContainer = ref(null);
@@ -34,9 +65,7 @@ const SA_BOUNDS = {
 const PADDING = 0.5; // degrees
 
 onMounted(async () => {
-  const coordinates = generateSACoordinates(300);
-
-  const myIcon = L.icon({
+  myIcon = L.icon({
     iconUrl: icon,
     iconSize: [30, 30],
     iconAnchor: [22, 94],
@@ -53,9 +82,9 @@ onMounted(async () => {
   ]);
 
   map.value = L.map("map", {
-    maxBounds: bounds,
-    maxZoom: 15,
-    minZoom: 5,
+    // maxBounds: bounds,
+    // maxZoom: 15,
+    // minZoom: 5,
     zoomControl: true,
     zoom: 1,
     zoomAnimation: false,
@@ -80,9 +109,9 @@ onMounted(async () => {
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map.value);
 
-  const markers = L.markerClusterGroup();
+  markers = L.markerClusterGroup();
 
-  coordinates.forEach((element, index) => {
+  coordinates.value.forEach((element, index) => {
     const each_marker = new L.marker([element.latitude, element.longitude], {
       icon: myIcon,
     }).bindPopup(
